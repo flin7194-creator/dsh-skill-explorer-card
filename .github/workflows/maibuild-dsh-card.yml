@@ -1,0 +1,67 @@
+name: Build DSH Skill Card
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your patch repository
+        uses: actions/checkout@v5
+        with:
+          path: patch-repo
+          persist-credentials: false
+      - name: Checkout original v0.4.21
+        uses: actions/checkout@v5
+        with:
+          repository: zhu1090093659/dsh-web
+          ref: 269159f4112c5628180475286f02dd9c40dc2963
+          path: upstream
+          persist-credentials: false
+      - uses: pnpm/action-setup@v5
+        with:
+          version: 11.24.0
+          package_json_file: upstream/package.json
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24.9.0'
+      - name: Apply card patch
+        run: node patch-repo/dsh-skill-card-v0421/dsh-skill-card-v0421/apply.mjs upstream
+      - name: Install original dependencies
+        working-directory: upstream
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Compile plugin
+        working-directory: upstream
+        run: pnpm --filter '@linxin666/dsh-client-ui-skill-explorer...' build
+      - name: Run plugin tests
+        working-directory: upstream
+        run: pnpm --filter '@linxin666/dsh-client-ui-skill-explorer' test
+      - name: Assemble runtime package
+        run: |
+          set -eu
+          src=upstream/packages/dsh-skill-explorer
+          mkdir -p dist
+          cp -r "$src/lib" "$src/locale" "$src/cordis.patch.yml" "$src/icon.svg" "$src/LICENSE" "$src/README.md" "$src/README.zh.md" "$src/README.i18n.yaml" "$src/package.json" dist/
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const p = JSON.parse(fs.readFileSync('dist/package.json', 'utf8'));
+          delete p.scripts;
+          delete p.devDependencies;
+          p.version = '0.4.21-card.1';
+          p.files = [...new Set([...(p.files || []), 'LICENSE'])];
+          fs.writeFileSync('dist/package.json', JSON.stringify(p,null,2)+'\n');
+          if (!p.dsh?.bundle?.patch) throw Error('Missing bundle declaration');
+          for (const file of ['lib/index.js','lib/client.js','cordis.patch.yml','LICENSE']) {
+            if (!fs.existsSync('dist/'+file)) throw Error('Missing '+file);
+          }
+          JS
+      - name: Upload compiled plugin for testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-skill-explorer-card-runtime
+          path: dist/
+          if-no-files-found: error
