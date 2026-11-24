@@ -1,0 +1,6 @@
+      <div className={css.cardOverview} aria-label={tt('tab.list')}>
+        <div className={css.statTile}><span>{tt('tab.list')}{payload.complete ? '' : tt('tab.list') === '技能' ? '（部分）' : ' (partial)'}</span><strong>{payload.groups.reduce((n, group) => n + group.skills.length, 0)}</strong></div>
+        <div className={css.statTile}><span>{tt('tab.list') === '技能' ? '面板已启用' : 'Panel enabled'}</span><strong>{payload.groups.reduce((n, group) => n + group.skills.filter(skill => skill.modelInvocable).length, 0)}</strong></div>
+        <div className={css.statTile}><span>{tt('filter.sourceLabel')}</span><strong>{payload.groups.filter(group => group.skills.length > 0).length}</strong></div>
+        <div className={css.statTile}><span>{tt('tab.list') === '技能' ? '最近刷新' : 'Last refresh'}</span><strong className={css.statTime}>{lastRefresh?.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) ?? '—'}</strong></div>
+      </div>

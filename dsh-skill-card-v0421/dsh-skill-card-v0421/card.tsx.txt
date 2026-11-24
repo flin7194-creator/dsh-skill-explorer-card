@@ -1,0 +1,71 @@
+  const detailsRef = useRef<HTMLDialogElement>(null)
+  const [preview, setPreview] = useState<string | undefined>(undefined)
+  const [previewError, setPreviewError] = useState<string | undefined>(undefined)
+  const chinese = tt('tab.list') === '技能'
+  const readPreview = async (): Promise<void> => {
+    if (skill.path === undefined || busyRef.current) return
+    busyRef.current = true
+    setBusy(true)
+    setPreviewError(undefined)
+    try {
+      const data = await api.read(skill.name, skill.path)
+      setPreview(data.content)
+    } catch (err) {
+      setPreviewError(err instanceof Error ? err.message : String(err))
+    } finally {
+      busyRef.current = false
+      setBusy(false)
+    }
+  }
+  const cardStatus = skill.fileState === 'provider-file'
+    ? (chinese ? (skill.modelInvocable ? '面板启用' : '面板停用') : (skill.modelInvocable ? 'Panel enabled' : 'Panel disabled'))
+    : tt(skill.modelInvocable ? 'filter.status.enabled' : 'filter.status.disabled')
+  return (
+    <article className={`${css.skillRow}${isIsolated ? ` ${css.skillIsolated}` : ''}`} data-dsh-part="skill-row">
+      <header className={css.cardTop}>
+        <button type="button" className={css.cardOpen} onClick={() => detailsRef.current?.showModal()} aria-haspopup="dialog" title={skill.name}>
+          <span className={css.cardIcon} data-tone={skill.level} aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round">
+              <path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 17l9 5 9-5"/>
+            </svg>
+          </span>
+          <span className={css.cardCopy}>
+            <span className={css.skillName}>{skill.name}</span>
+            <span className={css.cardDescription} title={skill.description}>{skill.description}</span>
+          </span>
+        </button>
+/* ORIGINAL_SWITCH */
+      </header>
+      <div className={css.cardMeta}>
+        <span className={`${css.badge} ${css.sourceBadge}`} title={source}>{source.split(/（|\s\(/)[0]}</span>
+        <span className={`${css.badge} ${skill.modelInvocable ? css.badgeInvokable : ''}`} title={fileBadge?.tooltip}>{cardStatus}</span>
+        {fileBadge !== undefined && <span className={css.badge} title={fileBadge.tooltip}>{fileBadge.label}</span>}
+        {skill.linked === true && <span className={css.badge}>{tt('list.linked')}</span>}
+        {isIsolated && <span className={`${css.badge} ${css.badgeIsolated}`}>{tt('workspace.isolated')}</span>}
+      </div>
+      {error !== undefined && <p className={css.banner} data-kind="error" role="alert">{error}</p>}
+      <dialog ref={detailsRef} className={css.skillDetails} aria-label={skill.name}>
+        <div className={css.detailHead}>
+          <h3>{skill.name}</h3>
+          <button type="button" className={css.ghostButton} onClick={() => detailsRef.current?.close()}>{chinese ? '关闭' : 'Close'}</button>
+        </div>
+        <div className={css.detailBadges}>
+          <span className={`${css.badge} ${css.sourceBadge}`}>{source}</span>
+/* ORIGINAL_BADGES */
+        </div>
+        <p className={css.skillDesc}>{skill.description}</p>
+        {skill.whenToUse !== undefined && skill.whenToUse !== '' && (
+          <p className={css.skillWhen}>{tt('list.when', { when: skill.whenToUse })}</p>
+        )}
+        {skill.path !== undefined && <div className={css.skillPath}>{skill.path}</div>}
+        {skill.path === undefined && <p className={css.skillWhen}>{localFileHint(skill)}</p>}
+        <div className={css.detailActions}>
+          {skill.path !== undefined && <button type="button" className={css.linkButton} disabled={busy} onClick={() => { void readPreview() }}>{chinese ? '预览' : 'Preview'}</button>}
+/* ORIGINAL_ACTIONS */
+        </div>
+        {previewError !== undefined && <p className={css.banner} data-kind="error" role="alert">{previewError}</p>}
+        {error !== undefined && <p className={css.banner} data-kind="error" role="alert">{error}</p>}
+        {preview !== undefined && <pre className={css.previewContent}>{preview}</pre>}
+      </dialog>
+    </article>
+  )

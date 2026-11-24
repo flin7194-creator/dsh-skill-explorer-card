@@ -1,0 +1,43 @@
+/* Compact cards, using the original DSH theme tokens. */
+.cardOverview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; flex:none; }
+.statTile { min-width:0; display:flex; flex-direction:column; gap:5px; padding:12px 14px; border:1px solid var(--dsw-alias-border-l1); border-radius:12px; background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 6%,var(--dsw-alias-bg-base)); }
+.statTile > span { font-size:12px; color:var(--dsw-alias-label-secondary); }
+.statTile > strong { font-size:22px; line-height:1.1; font-variant-numeric:tabular-nums; }
+.statTile .statTime { font-size:16px; }
+.fillBody { container-type:inline-size; }
+.fillBody .search { flex:1 1 260px; max-width:480px; }
+.fillBody .search:focus-visible,.cardOpen:focus-visible,.switch:focus-visible { outline:2px solid var(--dsw-alias-state-business-primary); outline-offset:2px; }
+.list { border:0; border-radius:0; padding:4px 3px 12px; gap:22px; }
+.group { gap:9px; }
+.groupToggle { font-size:14px; }
+.skillGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:stretch; }
+.skillGrid .skillRow { min-width:0; min-height:106px; box-sizing:border-box; display:flex; flex-direction:column; gap:9px; padding:12px; border:1px solid var(--dsw-alias-border-l1); border-radius:12px; background:var(--dsw-alias-bg-base); box-shadow:0 2px 7px color-mix(in srgb,var(--dsw-alias-label-primary) 5%,transparent); transition:border-color .15s ease; }
+.skillGrid .skillRow:hover,.skillGrid .skillRow:focus-within { border-color:var(--dsw-alias-state-business-primary); }
+.cardTop { display:flex; align-items:flex-start; gap:8px; min-width:0; }
+.cardOpen { display:flex; flex:1; min-width:0; align-items:center; gap:10px; padding:0; border:0; background:transparent; color:inherit; font:inherit; text-align:left; cursor:pointer; border-radius:6px; }
+.cardIcon { display:grid; place-items:center; flex:0 0 42px; height:42px; border-radius:11px; color:var(--dsw-alias-state-business-primary); background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 9%,var(--dsw-alias-bg-base)); }
+.cardIcon[data-tone^="user"] { color:var(--dsw-alias-state-success-primary); background:color-mix(in srgb,var(--dsw-alias-state-success-primary) 9%,var(--dsw-alias-bg-base)); }
+.cardCopy { display:flex; flex-direction:column; min-width:0; gap:4px; }
+.cardCopy .skillName { font:inherit; font-size:14px; font-weight:650; line-height:1.35; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow-wrap:anywhere; }
+.cardDescription { font-size:12px; color:var(--dsw-alias-label-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.45; }
+.cardMeta,.detailBadges { display:flex; flex-wrap:wrap; align-items:center; gap:5px; min-width:0; }
+.cardMeta { margin-top:auto; }
+.cardMeta .badge { max-width:100%; overflow:hidden; text-overflow:ellipsis; box-sizing:border-box; border:0; background:var(--dsw-alias-interactive-bg-hover); }
+.cardMeta .sourceBadge,.sourceBadge { color:var(--dsw-alias-state-business-primary); background:color-mix(in srgb,var(--dsw-alias-state-business-primary) 8%,var(--dsw-alias-bg-base)); }
+.cardMeta .badgeInvokable { color:var(--dsw-alias-state-success-primary); background:color-mix(in srgb,var(--dsw-alias-state-success-primary) 8%,var(--dsw-alias-bg-base)); }
+.cardTop .switch { flex:none; margin:1px 0 0; }
+.cardTop .switchTrack { width:36px; height:20px; }
+.cardTop .switchThumb { width:16px; height:16px; }
+.cardTop .switch[aria-checked='true'] .switchTrack { background:var(--dsw-alias-state-business-primary); }
+.cardTop .switch[aria-checked='true'] .switchThumb { left:18px; }
+.skillDetails { box-sizing:border-box; width:min(560px,calc(100vw - 32px)); max-height:80vh; overflow:auto; padding:22px; border:1px solid var(--dsw-alias-border-l2); border-radius:16px; background:var(--dsw-alias-bg-base); color:var(--dsw-alias-label-primary); font-family:var(--dsw-font-family); box-shadow:0 12px 40px color-mix(in srgb,var(--dsw-alias-label-primary) 15%,transparent); }
+.skillDetails::backdrop { background:color-mix(in srgb,var(--dsw-alias-label-primary) 24%,transparent); }
+.detailHead { display:flex; align-items:flex-start; gap:14px; justify-content:space-between; margin-bottom:14px; }
+.detailHead h3 { margin:0; font-size:17px; overflow-wrap:anywhere; min-width:0; }
+.skillDetails .skillDesc { margin-top:16px; white-space:pre-wrap; overflow-wrap:anywhere; }
+.skillDetails .skillWhen { margin-top:12px; line-height:1.6; overflow-wrap:anywhere; }
+.detailActions { display:flex; flex-wrap:wrap; gap:16px; margin-top:20px; }
+.previewContent { font-size:12px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; padding:12px; border-radius:8px; border:1px solid var(--dsw-alias-border-l1); }
+@container (max-width:960px) { .skillGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@container (max-width:560px) { .skillGrid { grid-template-columns:minmax(0,1fr); } .cardOverview { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (prefers-reduced-motion:reduce) { .skillGrid .skillRow,.cardTop .switchTrack,.cardTop .switchThumb { transition:none; } }
