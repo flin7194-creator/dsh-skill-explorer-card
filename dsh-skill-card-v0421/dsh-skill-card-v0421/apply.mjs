@@ -31,6 +31,7 @@ const toggle = between(original, '        {canToggle(skill)', '        {canCopy 
 const actions = between(original, '        {canCopy &&', '      </header>');
 let card = fs.readFileSync(path.join(here,'card.tsx.txt'),'utf8');
 card = card.replace('/* ORIGINAL_BADGES */',()=>badges.trimEnd()).replace('/* ORIGINAL_SWITCH */',()=>toggle.trimEnd()).replace('/* ORIGINAL_ACTIONS */',()=>actions.trimEnd());
+card = replaceOnce(card, '<span className={css.skillName}>{skill.name}</span>', '<span className={css.skillName} data-dsh-part="skill-name">{skill.name}</span>');
 s = replaceOnce(s, original, card.trimEnd());
 s = replaceOnce(s, 'function SkillRow({ skill, api, onChanged, onEdit, onDuplicate }: {\n  skill: SkillEntry', 'function SkillRow({ skill, source, api, onChanged, onEdit, onDuplicate }: {\n  source: string\n  skill: SkillEntry');
 s = replaceOnce(s, '  const [loading, setLoading] = useState(true)', '  const [loading, setLoading] = useState(true)\n  const [lastRefresh, setLastRefresh] = useState<Date | undefined>(undefined)');
@@ -40,10 +41,19 @@ s = replaceOnce(s, '                  {expanded && group.skills.map(skill => (',
 s = replaceOnce(s, '                      skill={skill}\n                      api={api}', '                      skill={skill}\n                      source={groupTitle(group)}\n                      api={api}');
 s = replaceOnce(s, '                  ))}\n                </section>', '                  ))}</div>}\n                </section>');
 const css = raw[1].toString('utf8').replace(/\r\n/g,'\n') + '\n' + fs.readFileSync(path.join(here,'cards.css'),'utf8');
+// The old tests identify a skill by its first span; the new card starts with an icon.
+// Use the explicit semantic hook instead, retaining all existing assertions.
+const testPath = path.join(pkg, 'tests', 'panel.spec.tsx');
+const testRaw = fs.readFileSync(testPath);
+const oldTest = testRaw.toString('utf8').replace(/\r\n/g,'\n');
+const selector = /\.querySelector\('span'\)\?\.textContent/g;
+if ((oldTest.match(selector) || []).length !== 3) throw Error('Unexpected test selector count. No changes made.');
+const newTest = oldTest.replace(selector, `.querySelector('[data-dsh-part="skill-name"]')?.textContent`);
 const backup = path.join(root, '.dsh-skill-cards-backup-v0421');
 if (fs.existsSync(backup)) throw Error('Backup already exists. No changes made.');
 fs.mkdirSync(backup);
 for (let i=0;i<files.length;i++) fs.writeFileSync(path.join(backup,files[i]),raw[i],{flag:'wx'});
-try { fs.writeFileSync(path.join(src,files[0]),s); fs.writeFileSync(path.join(src,files[1]),css); }
-catch(e) { for(let i=0;i<files.length;i++) fs.writeFileSync(path.join(src,files[i]),raw[i]); throw e; }
+fs.writeFileSync(path.join(backup,'panel.spec.tsx'),testRaw,{flag:'wx'});
+try { fs.writeFileSync(path.join(src,files[0]),s); fs.writeFileSync(path.join(src,files[1]),css); fs.writeFileSync(testPath,newTest); }
+catch(e) { for(let i=0;i<files.length;i++) fs.writeFileSync(path.join(src,files[i]),raw[i]); fs.writeFileSync(testPath,testRaw); throw e; }
 console.log('Applied to v0.4.21. Backup: '+backup+'\nBuild and test before installing.');
