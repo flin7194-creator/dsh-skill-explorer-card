@@ -40,6 +40,36 @@ jobs:
       - name: Run plugin tests
         working-directory: upstream
         run: pnpm --filter '@linxin666/dsh-client-ui-skill-explorer' test
+      - name: Rebrand package and rebuild runtime
+        working-directory: upstream/packages/dsh-skill-explorer
+        run: |
+          set -eu
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const old = '@linxin666/dsh-client-ui-skill-explorer';
+          const next = '@flin7194-creator/dsh-skill-explorer-card';
+          for (const file of ['tsdown.config.ts','src/index.ts','src/client/index.ts','cordis.patch.yml']) {
+            const body = fs.readFileSync(file, 'utf8');
+            if (!body.includes(old)) throw Error('Missing original identity in '+file);
+            fs.writeFileSync(file, body.replaceAll(old,next));
+          }
+          const p = JSON.parse(fs.readFileSync('package.json','utf8'));
+          if (p.name !== old) throw Error('Unexpected package name');
+          p.name = next;
+          p.version = '0.4.21-card.2';
+          p.repository = {type:'git',url:'https://github.com/flin7194-creator/dsh-skill-explorer-card.git'};
+          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
+          JS
+          pnpm exec tsdown
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const next = '@flin7194-creator/dsh-skill-explorer-card';
+          const old = '@linxin666/dsh-client-ui-skill-explorer';
+          for (const file of ['lib/index.js','lib/client.js','cordis.patch.yml']) {
+            const body = fs.readFileSync(file,'utf8');
+            if (!body.includes(next) || body.includes(old)) throw Error('Identity verification failed: '+file);
+          }
+          JS
       - name: Assemble runtime package
         run: |
           set -eu
@@ -51,7 +81,6 @@ jobs:
           const p = JSON.parse(fs.readFileSync('dist/package.json', 'utf8'));
           delete p.scripts;
           delete p.devDependencies;
-          p.version = '0.4.21-card.1';
           p.files = [...new Set([...(p.files || []), 'LICENSE'])];
           fs.writeFileSync('dist/package.json', JSON.stringify(p,null,2)+'\n');
           if (!p.dsh?.bundle?.patch) throw Error('Missing bundle declaration');
