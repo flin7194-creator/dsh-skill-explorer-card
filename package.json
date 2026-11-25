@@ -1,7 +1,7 @@
 {
-  "name": "@linxin666/dsh-client-ui-skill-explorer",
+  "name": "@flin7194-creator/dsh-skill-explorer-card",
   "description": "DSH skill center: browse loaded skills by source (bundled / project / user / custom / runtime), enable or disable, create and delete, in a web GUI panel.",
-  "version": "0.4.21-card.1",
+  "version": "0.4.21-card.2",
   "icon": "icon.svg",
   "type": "module",
   "main": "lib/index.js",
@@ -56,6 +56,6 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zhu1090093659/dsh-web.git"
+    "url": "https://github.com/flin7194-creator/dsh-skill-explorer-card.git"
   }
 }
